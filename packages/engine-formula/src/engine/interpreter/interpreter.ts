@@ -48,7 +48,9 @@ export class Interpreter extends Disposable {
         const refOffsetX = nodeData.refOffsetX;
         const refOffsetY = nodeData.refOffsetY;
 
-        await this._executeAsync(node, refOffsetX, refOffsetY);
+        console.log('executeAsync node', node);
+
+        await this._executeAsync(node, nodeData.currentUnitId, nodeData.currentSubUnitId, nodeData.currentRow, nodeData.currentColumn, refOffsetX, refOffsetY);
 
         const value = node.getValue();
 
@@ -72,9 +74,13 @@ export class Interpreter extends Disposable {
         const refOffsetX = nodeData.refOffsetX;
         const refOffsetY = nodeData.refOffsetY;
 
-        this._execute(node, refOffsetX, refOffsetY);
+        this._execute(node, nodeData.currentUnitId, nodeData.currentSubUnitId, nodeData.currentRow, nodeData.currentColumn, refOffsetX, refOffsetY);
+
+        console.log('execute node', node);
 
         const value = node.getValue();
+
+        console.log("execute value", value);
 
         if (value == null) {
             return ErrorValueObject.create(ErrorType.VALUE);
@@ -115,12 +121,13 @@ export class Interpreter extends Disposable {
         }
     }
 
-    private async _executeAsync(node: BaseAstNode, refOffsetX = 0, refOffsetY = 0): Promise<AstNodePromiseType> {
+    private async _executeAsync(node: BaseAstNode, currentUnitId: string, currentSubUnitId: string, currentRow: number, currentColumn: number,refOffsetX = 0, refOffsetY = 0): Promise<AstNodePromiseType> {
         if (this._runtimeService.isStopExecution()) {
             return Promise.resolve(AstNodePromiseType.ERROR);
         }
         const children = node.getChildren();
         const childrenCount = children.length;
+        const promises = [];
         for (let i = 0; i < childrenCount; i++) {
             const item = children[i];
             const token = item.getToken();
@@ -134,8 +141,9 @@ export class Interpreter extends Disposable {
                 item.execute();
                 continue;
             }
-            await this._executeAsync(item, refOffsetX, refOffsetY);
+            promises.push(this._executeAsync(item, currentUnitId, currentSubUnitId, currentRow, currentColumn, refOffsetX, refOffsetY));
         }
+        const results = await Promise.all(promises);
 
         if (node.nodeType === NodeType.REFERENCE) {
             (node as ReferenceNode).setRefOffset(refOffsetX, refOffsetY);
@@ -150,10 +158,12 @@ export class Interpreter extends Disposable {
         return Promise.resolve(AstNodePromiseType.SUCCESS);
     }
 
-    private _execute(node: BaseAstNode, refOffsetX = 0, refOffsetY = 0): AstNodePromiseType {
+    private _execute(node: BaseAstNode, currentUnitId: string, currentSubUnitId: string, currentRow: number, currentColumn: number, refOffsetX = 0, refOffsetY = 0): AstNodePromiseType {
         if (this._runtimeService.isStopExecution()) {
             return AstNodePromiseType.ERROR;
         }
+        console.log("_execute", node);
+        
         const children = node.getChildren();
         const childrenCount = children.length;
         for (let i = 0; i < childrenCount; i++) {
@@ -169,7 +179,7 @@ export class Interpreter extends Disposable {
                 item.execute();
                 continue;
             }
-            this._execute(item, refOffsetX, refOffsetY);
+            this._execute(item, currentUnitId, currentSubUnitId, currentRow, currentColumn, refOffsetX, refOffsetY);
         }
 
         if (node.nodeType === NodeType.REFERENCE) {

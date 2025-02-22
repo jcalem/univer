@@ -314,9 +314,11 @@ export class FunctionNode extends BaseAstNode {
     private _setRefInfo() {
         const { currentUnitId, currentSubUnitId, currentRow, currentColumn } = this._runtimeService;
 
+        // this._functionExecutor.setRefInfo(this._currentUnitId, this._currentSubUnitId, this._currentRow, this._currentColumn);
         this._functionExecutor.setRefInfo(currentUnitId, currentSubUnitId, currentRow, currentColumn);
 
         if (this._functionExecutor.needsSheetRowColumnCount) {
+            // const { rowCount, columnCount } = this._currentConfigService.getSheetRowColumnCount(this._currentUnitId, this._currentSubUnitId);
             const { rowCount, columnCount } = this._currentConfigService.getSheetRowColumnCount(currentUnitId, currentSubUnitId);
 
             this._functionExecutor.setSheetRowColumnCount(rowCount, columnCount);

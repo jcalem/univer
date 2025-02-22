@@ -265,10 +265,23 @@ export class CalculateFormulaService extends Disposable {
         const config = this._configService.getConfig(ENGINE_FORMULA_PLUGIN_CONFIG_KEY) as IUniverEngineFormulaConfig;
         const intervalCount = config?.intervalCount || DEFAULT_INTERVAL_COUNT;
 
+        console.log("treeList", treeList)
+
         const treeCount = treeList.length;
         for (let i = 0; i < treeCount; i++) {
             const tree = treeList[i];
-            const nodeData = tree.nodeData;
+            const nodeData = {
+                node: tree.nodeData.node,
+                refOffsetX: tree.nodeData.refOffsetX,
+                refOffsetY: tree.nodeData.refOffsetY,
+                currentUnitId: tree.unitId,
+                currentSubUnitId: tree.subUnitId,
+                currentRow: tree.row,
+                currentColumn: tree.column
+            }
+
+            console.log("nodeData", nodeData);
+            
             const getDirtyData = tree.getDirtyData;
 
             // Execute the await every 100 iterations
@@ -322,6 +335,8 @@ export class CalculateFormulaService extends Disposable {
                  */
                 const { runtimeCellData, dirtyRanges } = getDirtyData(this._currentConfigService.getDirtyData(), this._runtimeService.getAllRuntimeData());
 
+                console.log("dirty runtimeCellData", runtimeCellData);
+
                 this._runtimeService.setRuntimeFeatureCellData(tree.featureId, runtimeCellData);
 
                 this._runtimeService.setRuntimeFeatureRange(tree.featureId, dirtyRanges);
@@ -333,9 +348,16 @@ export class CalculateFormulaService extends Disposable {
                 }
 
                 if (tree.formulaId != null) {
-                    this._runtimeService.setRuntimeOtherData(tree.formulaId, tree.refOffsetX, tree.refOffsetY, value);
+                    this._runtimeService.setRuntimeOtherData(tree.formulaId, tree.refOffsetX, tree.refOffsetY, value, tree.subUnitId, tree.unitId);
                 } else {
-                    this._runtimeService.setRuntimeData(value);
+                    this._runtimeService.setRuntimeData(value,
+                        tree.row,
+                        tree.column,
+                        tree.rowCount,
+                        tree.columnCount,
+                        tree.subUnitId,
+                        tree.unitId
+                    );
                 }
             }
         }

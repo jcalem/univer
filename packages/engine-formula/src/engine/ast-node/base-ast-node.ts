@@ -48,6 +48,14 @@ export class BaseAstNode {
 
     private _isForcedCalculateFunction = false;
 
+    protected _currentUnitId: string;
+
+    protected _currentSubUnitId: string;
+
+    protected _currentRow: number;
+
+    protected _currentColumn: number;
+
     constructor(private _token: string) {
 
     }

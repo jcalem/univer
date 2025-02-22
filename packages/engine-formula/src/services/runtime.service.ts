@@ -109,7 +109,7 @@ export interface IFormulaRuntimeService {
 
     getFunctionDefinitionPrivacyVar(lambdaId: string): Nullable<Map<string, Nullable<BaseAstNode>>>;
 
-    setRuntimeData(functionVariant: FunctionVariantType): void;
+    setRuntimeData(functionVariant: FunctionVariantType, row: number, column: number, rowCount: number, columnCount: number, sheetId: string, unitId: string): void;
 
     getUnitData(): IRuntimeUnitDataType;
 
@@ -125,7 +125,7 @@ export interface IFormulaRuntimeService {
 
     getFormulaExecuteStage(): FormulaExecuteStageType;
 
-    setRuntimeOtherData(formulaId: string, x: number, y: number, functionVariant: FunctionVariantType): void;
+    setRuntimeOtherData(formulaId: string, x: number, y: number, functionVariant: FunctionVariantType, subUnitId: string, unitId: string): void;
 
     getRuntimeOtherData(): IRuntimeOtherUnitDataType;
 
@@ -395,10 +395,7 @@ export class FormulaRuntimeService extends Disposable implements IFormulaRuntime
         return this._functionDefinitionPrivacyVar.get(lambdaId);
     }
 
-    setRuntimeOtherData(formulaId: string, x: number, y: number, functionVariant: FunctionVariantType) {
-        const subUnitId = this._currentSubUnitId;
-        const unitId = this._currentUnitId;
-
+    setRuntimeOtherData(formulaId: string, x: number, y: number, functionVariant: FunctionVariantType, subUnitId: string, unitId: string) {
         if (this._runtimeOtherData[unitId] === undefined) {
             this._runtimeOtherData[unitId] = {};
         }
@@ -447,14 +444,7 @@ export class FormulaRuntimeService extends Disposable implements IFormulaRuntime
     }
 
     // eslint-disable-next-line max-lines-per-function
-    setRuntimeData(functionVariant: FunctionVariantType) {
-        const row = this._currentRow;
-        const column = this._currentColumn;
-        const rowCount = this._currentRowCount;
-        const columnCount = this.currentColumnCount;
-        const sheetId = this._currentSubUnitId;
-        const unitId = this._currentUnitId;
-
+    setRuntimeData(functionVariant: FunctionVariantType, row: number, column: number, rowCount: number, columnCount: number, sheetId: string, unitId: string) {
         if (this._runtimeData[unitId] == null) {
             this._runtimeData[unitId] = {};
         }

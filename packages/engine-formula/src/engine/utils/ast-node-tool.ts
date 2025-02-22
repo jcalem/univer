@@ -21,6 +21,10 @@ export interface IExecuteAstNodeData {
     node: Nullable<BaseAstNode>;
     refOffsetX: number;
     refOffsetY: number;
+    currentUnitId: string;
+    currentSubUnitId: string;
+    currentRow: number;
+    currentColumn: number;
 }
 
 export function getAstNodeTopParent(node: BaseAstNode) {

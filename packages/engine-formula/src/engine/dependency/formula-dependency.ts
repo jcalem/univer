@@ -375,6 +375,10 @@ export class FormulaDependencyGenerator extends Disposable {
                 node,
                 refOffsetX: tree.refOffsetX,
                 refOffsetY: tree.refOffsetY,
+                currentUnitId: tree.unitId,
+                currentSubUnitId: tree.subUnitId,
+                currentRow: tree.row,
+                currentColumn: tree.column
             });
             (tree as FormulaDependencyTree).pushRangeList(rangeList);
         }
@@ -762,14 +766,11 @@ export class FormulaDependencyGenerator extends Disposable {
         }
     }
 
-    private async _executeNode(node: PreCalculateNodeType | FunctionNode, refOffsetX = 0, refOffsetY = 0) {
+    private async _executeNode(nodeData: IExecuteAstNodeData) {
         let value: BaseReferenceObject;
-        const nodeData = {
-            node,
-            refOffsetX,
-            refOffsetY,
-        };
-        if (this._interpreter.checkAsyncNode(node)) {
+
+        console.log("_executeNode", nodeData);
+        if (this._interpreter.checkAsyncNode(nodeData.node)) {
             value = (await this._interpreter.executeAsync(nodeData)) as BaseReferenceObject;
         } else {
             value = this._interpreter.execute(nodeData) as BaseReferenceObject;
@@ -800,7 +801,7 @@ export class FormulaDependencyGenerator extends Disposable {
         for (let i = 0, len = preCalculateNodeList.length; i < len; i++) {
             const node = preCalculateNodeList[i];
 
-            const value: BaseReferenceObject = await this._executeNode(node, refOffsetX, refOffsetY);
+            const value: BaseReferenceObject = await this._executeNode(nodeData);
 
             const gridRange = value.toUnitRange();
 
@@ -839,8 +840,12 @@ export class FormulaDependencyGenerator extends Disposable {
 
         const refOffsetX = tree.refOffsetX;
         const refOffsetY = tree.refOffsetY;
+        const currentUnitId = tree.unitId;
+        const currentSubUnitId = tree.subUnitId;
+        const currentRow = tree.row;
+        const currentColumn = tree.column;
 
-        const addressFunctionRangeList = await this._getRangeListByFunctionRefNode(addressFunctionNodes, refOffsetX, refOffsetY);
+        const addressFunctionRangeList = await this._getRangeListByFunctionRefNode(addressFunctionNodes, refOffsetX, refOffsetY, currentUnitId, currentSubUnitId, currentRow, currentColumn);
 
         tree.addressFunctionNodes = [];
 
@@ -910,6 +915,10 @@ export class FormulaDependencyGenerator extends Disposable {
                 node: addressFunctionNodes[j],
                 refOffsetX,
                 refOffsetY,
+                currentUnitId: tree.unitId,
+                currentSubUnitId: tree.subUnitId,
+                currentRow: tree.row,
+                currentColumn: tree.column
             });
 
             dirtyRanges.push(...rangeList);
@@ -937,6 +946,7 @@ export class FormulaDependencyGenerator extends Disposable {
     }
 
     private async _calculateAddressFunctionRuntimeData(treeDependencyCache: RTree, preCalculateTreeList: IFormulaDependencyTree[]) {
+        console.log('calculateAddressFunctionRuntimeData preCalculateTreeList', preCalculateTreeList);
         while (preCalculateTreeList.length > 0) {
             const tree = preCalculateTreeList.pop()!;
             const node = this._getTreeNode(tree);
@@ -944,6 +954,10 @@ export class FormulaDependencyGenerator extends Disposable {
                 node,
                 refOffsetX: tree.refOffsetX,
                 refOffsetY: tree.refOffsetY,
+                currentUnitId: tree.unitId,
+                currentSubUnitId: tree.subUnitId,
+                currentRow: tree.row,
+                currentColumn: tree.column
             };
 
             await this._calculateAddressFunction(treeDependencyCache, tree);
@@ -958,16 +972,25 @@ export class FormulaDependencyGenerator extends Disposable {
             );
 
             let value: FunctionVariantType;
+            console.log("calculateAddressFunctionRuntimeData", nodeData);
             if (this._interpreter.checkAsyncNode(nodeData.node)) {
+                
                 value = await this._interpreter.executeAsync(nodeData);
             } else {
                 value = this._interpreter.execute(nodeData);
             }
 
             if (tree.formulaId != null) {
-                this._runtimeService.setRuntimeOtherData(tree.formulaId, tree.refOffsetX, tree.refOffsetY, value);
+                this._runtimeService.setRuntimeOtherData(tree.formulaId, tree.refOffsetX, tree.refOffsetY, value, tree.subUnitId, tree.unitId);
             } else {
-                this._runtimeService.setRuntimeData(value);
+                this._runtimeService.setRuntimeData(value,
+                    tree.row,
+                    tree.column,
+                    tree.rowCount,
+                    tree.columnCount,
+                    tree.subUnitId,
+                    tree.unitId
+                );
             }
         }
     }
@@ -1039,12 +1062,22 @@ export class FormulaDependencyGenerator extends Disposable {
      * including references and location functions (such as OFFSET, INDIRECT, INDEX, etc.).
      * @param node
      */
-    protected async _getRangeListByFunctionRefNode(referenceFunctionList: FunctionNode[], refOffsetX: number, refOffsetY: number) {
+    protected async _getRangeListByFunctionRefNode(referenceFunctionList: FunctionNode[], refOffsetX: number, refOffsetY: number, currentUnitId: string, currentSubUnitId: string, currentRow: number, currentColumn: number) {
+        
         const rangeList: IUnitRange[] = [];
 
         for (let i = 0, len = referenceFunctionList.length; i < len; i++) {
             const node = referenceFunctionList[i];
-            const value: BaseReferenceObject = await this._executeNode(node, refOffsetX, refOffsetY);
+            const nodeData = {
+                node,
+                refOffsetX,
+                refOffsetY,
+                currentUnitId,
+                currentSubUnitId,
+                currentRow,
+                currentColumn
+            }
+            const value: BaseReferenceObject = await this._executeNode(nodeData);
 
             const gridRange = value.toUnitRange();
 

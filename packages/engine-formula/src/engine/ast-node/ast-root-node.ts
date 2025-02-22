@@ -28,6 +28,9 @@ export class AstRootNode extends BaseAstNode {
     }
 
     override execute() {
+        console.log('AstRootNode execute');
+        console.log(this.getChildren());
+        
         const children = this.getChildren();
 
         if (children.length > 1) {
