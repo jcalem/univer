@@ -38,6 +38,7 @@ export class FormulaAutoFillController extends Disposable {
     }
 
     private _registerAutoFill(): void {
+        console.log('registerAutoFill');
         const formulaRule: IAutoFillRule = {
             type: DATA_TYPE.FORMULA,
             priority: 1001,
@@ -122,6 +123,7 @@ export class FormulaAutoFillController extends Disposable {
             }
         }
 
+        console.log('fillCopyFormula end', applyData);
         return applyData;
     }
 }

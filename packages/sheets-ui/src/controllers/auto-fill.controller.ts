@@ -377,6 +377,8 @@ export class AutoFillController extends Disposable {
             });
         }
 
+        console.log('applyData', applyData);
+
         return applyData;
     }
 
@@ -713,6 +715,8 @@ export class AutoFillController extends Disposable {
             });
         }
 
+        console.log('applyDatas', applyDatas);
+
         // delete cross merge
         if (hasStyle) {
             const deleteMergeRanges: IRange[] = [];
@@ -776,6 +780,8 @@ export class AutoFillController extends Disposable {
             cellValue: cellValueMatrix,
         };
 
+        console.log('cellValueMatrix', cellValueMatrix);
+
         const undoSetRangeValuesMutationParams: ISetRangeValuesMutationParams = this._injector.invoke(
             SetRangeValuesUndoMutationFactory,
             setRangeValuesMutationParams
@@ -784,6 +790,8 @@ export class AutoFillController extends Disposable {
         this._autoFillService.getActiveHooks().forEach((hook) => {
             hook.onBeforeSubmit?.(location, direction, applyType, cellValueMatrix);
         });
+
+
 
         undos.unshift({ id: SetRangeValuesMutation.id, params: undoSetRangeValuesMutationParams });
         redos.push({ id: SetRangeValuesMutation.id, params: setRangeValuesMutationParams });
@@ -806,6 +814,9 @@ export class AutoFillController extends Disposable {
             undos.unshift({ id: RemoveWorksheetMergeMutation.id, params: undoAddMergeMutationParams });
             redos.push({ id: AddWorksheetMergeMutation.id, params: addMergeMutationParams });
         }
+
+        console.log('undos', undos);
+        console.log('redos', redos);
 
         return {
             undos,

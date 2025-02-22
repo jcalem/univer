@@ -108,6 +108,7 @@ export class CalculateController extends Disposable {
          * Assignment operation after formula calculation.
          */
         this._calculateFormulaService.executionCompleteListener$.subscribe((data) => {
+            console.log('executionCompleteListener$', data);
             const functionsExecutedState = data.functionsExecutedState;
             switch (functionsExecutedState) {
                 case FormulaExecutedStateType.NOT_EXECUTED:
@@ -136,6 +137,7 @@ export class CalculateController extends Disposable {
          * Assignment operation after formula calculation.
          */
         this._calculateFormulaService.executionInProgressListener$.subscribe((data) => {
+            console.log('executionInProgressListener$', data);
             this._commandService.executeCommand(
                 SetFormulaCalculationNotificationMutation.id,
                 {

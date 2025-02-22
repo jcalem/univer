@@ -439,7 +439,10 @@ export class AutoFillService extends Disposable implements IAutoFillService {
                 redos.push(...hookRedos);
             }
         });
-        const result = redos.every((m) => this._commandService.syncExecuteCommand(m.id, m.params));
+        const result = redos.every((m) => {
+            console.log('fillData redos', m);
+            return this._commandService.syncExecuteCommand(m.id, m.params);
+        });
 
         // deal with auto-height
         const autoHeightRanges: IRange[] = [];

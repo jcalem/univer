@@ -43,7 +43,7 @@ import { UniverSheetsUIPlugin } from '@univerjs/sheets-ui';
 import { UniverSheetsZenEditorPlugin } from '@univerjs/sheets-zen-editor';
 import { UniverThreadCommentUIPlugin } from '@univerjs/thread-comment-ui';
 import { UniverUIPlugin } from '@univerjs/ui';
-
+import { RivannaFunctionsPlugin } from '@univerjs/rivanna-functions';
 import { enUS, faIR, frFR, ruRU, viVN, zhCN, zhTW } from '../locales';
 
 import '@univerjs/sheets/facade';
@@ -127,6 +127,8 @@ function createNewInstance() {
     univer.registerPlugin(UniverSheetsThreadCommentPlugin);
     univer.registerPlugin(UniverSheetsThreadCommentUIPlugin);
     univer.registerPlugin(UniverSheetsBindingSourcePlugin);
+
+    univer.registerPlugin(RivannaFunctionsPlugin);
 
     // If we are running in e2e platform, we should immediately register the debugger plugin.
     if (IS_E2E) {

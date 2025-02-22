@@ -120,7 +120,9 @@ export const SetRangeValuesMutation: IMutation<ISetRangeValuesMutationParams, bo
         const styles = workbook.getStyles();
         const newValues = new ObjectMatrix(cellValue);
 
+        console.log('START');
         newValues.forValue((row, col, newVal) => {
+            console.log('setRangeValuesMutation newVal', newVal);
             // clear all
             if (!newVal) {
                 cellMatrix?.setValue(row, col, {});
@@ -166,6 +168,7 @@ export const SetRangeValuesMutation: IMutation<ISetRangeValuesMutationParams, bo
                 cellMatrix.setValue(row, col, Tools.removeNull(oldVal));
             }
         });
+        console.log('END');
 
         return true;
     },
